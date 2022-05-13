@@ -1,6 +1,6 @@
 # Helm Chart for Filestash
 
-Based on the image built from https://github.com/mickael-kerjean/filestash.
+Based on the image built from :unicorn: https://github.com/mickael-kerjean/filestash.
 
 ## Usage
 
