@@ -23,7 +23,7 @@
 ## Usage
 
 ```shell
-helm repo add filestash https://sebagarayco.github.io/filestash
+helm repo add filestash https://sebagarayco.github.io/helm-filestash
 
 # list the versions available
 helm search repo filestash

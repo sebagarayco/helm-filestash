@@ -7,7 +7,7 @@ Based on the image built from :unicorn: https://github.com/mickael-kerjean/files
 See [here](charts/filestash/README.md) for all configuration options.
 
 ```shell
-helm repo add filestash https://sebagarayco.github.io/filestash
+helm repo add filestash https://sebagarayco.github.io/helm-filestash
 
 # list the versions available
 helm search repo filestash
