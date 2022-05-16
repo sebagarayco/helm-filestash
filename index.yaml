@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  filestash:
+  - apiVersion: v2
+    appVersion: f72b630
+    created: "2022-05-16T13:20:15.571346589Z"
+    description: A Helm chart for Filestash
+    digest: cf5a52b37d8d9b24b8b845936b14c4afc89d3f0ac484caa4402d25e885072586
+    name: filestash
+    type: application
+    urls:
+    - https://github.com/sebagarayco/helm-filestash/releases/download/filestash-0.1.0/filestash-0.1.0.tgz
+    version: 0.1.0
+generated: "2022-05-16T13:20:15.571363589Z"
