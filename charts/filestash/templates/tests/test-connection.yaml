@@ -13,3 +13,21 @@ spec:
       command: ['wget']
       args: ['{{ include "filestash.fullname" . }}:{{ .Values.service.port }}']
   restartPolicy: Never
+{{- if .Values.documentServer.enabled }}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "filestash.documentServer.fullname" . }}-test-connection"
+  labels:
+    {{- include "filestash.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "filestash.documentServer.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never
+{{- end }}

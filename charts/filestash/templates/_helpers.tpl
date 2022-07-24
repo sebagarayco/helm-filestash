@@ -24,6 +24,19 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 
 {{/*
+Create a default fully qualified app name for the document server.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+If release name contains chart name it will be used as a full name.
+*/}}
+{{- define "filestash.documentServer.fullname" -}}
+{{- if .Values.documentServer.fullnameOverride }}
+{{- .Values.documentServer.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" ( include "filestash.fullname" . ) .Values.documentServer.nameOverride }}
+{{- end }}
+{{- end }}
+
+{{/*
 Create chart name and version as used by the chart label.
 */}}
 {{- define "filestash.chart" -}}
@@ -48,6 +61,17 @@ Selector labels
 {{- define "filestash.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "filestash.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Common component labels
+*/}}
+{{- define "filestash.componentLabels.webapp" -}}
+app.kubernetes.io/component: webapp
+{{- end }}
+
+{{- define "filestash.componentLabels.documentServer" -}}
+app.kubernetes.io/component: document-server
 {{- end }}
 
 {{/*
