@@ -1,0 +1,10 @@
+{{- if and .Values.ingress.isTraefik .Values.ingress.enabled (.Capabilities.APIVersions.Has "traefik.containo.us/v1alpha1/Middleware") -}}
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: "{{ include "filestash.fullname" . | printf "%s-add-headers" }}"
+spec:
+  headers:
+    customRequestHeaders:
+      X-Forwarded-Proto: https
+{{- end }}

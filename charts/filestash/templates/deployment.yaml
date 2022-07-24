@@ -4,6 +4,7 @@ metadata:
   name: {{ include "filestash.fullname" . }}
   labels:
     {{- include "filestash.labels" . | nindent 4 }}
+    {{- include "filestash.componentLabels.webapp" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
@@ -11,6 +12,7 @@ spec:
   selector:
     matchLabels:
       {{- include "filestash.selectorLabels" . | nindent 6 }}
+      {{- include "filestash.componentLabels.webapp" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -19,6 +21,7 @@ spec:
       {{- end }}
       labels:
         {{- include "filestash.selectorLabels" . | nindent 8 }}
+        {{- include "filestash.componentLabels.webapp" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -33,6 +36,16 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if or .Values.env .Values.documentServer.enabled }}
+          env:
+            {{- with .Values.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+            {{- if .Values.documentServer.enabled }}
+            - name: ONLYOFFICE_URL
+              value: "http://{{ include "filestash.documentServer.fullname" . }}"
+            {{- end }}
+          {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -47,6 +60,13 @@ spec:
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /app/data/state
+              name: {{ template "filestash.fullname" . }}-state
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+        runAsGroup: 1000
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -59,3 +79,86 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: {{ template "filestash.fullname" . }}-state
+          {{- if .Values.persistence.filestashState.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ template "filestash.fullname" . }}-state
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+{{- if .Values.documentServer.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "filestash.documentServer.fullname" . }}
+  labels:
+    {{- include "filestash.labels" . | nindent 4 }}
+    {{- include "filestash.componentLabels.documentServer" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.documentServer.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "filestash.selectorLabels" . | nindent 6 }}
+      {{- include "filestash.componentLabels.documentServer" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "filestash.selectorLabels" . | nindent 8 }}
+        {{- include "filestash.componentLabels.documentServer" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "filestash.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Values.documentServer.nameOverride }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.documentServer.image.repository }}:{{ .Values.documentServer.image.tag | default "latest" }}"
+          imagePullPolicy: {{ .Values.documentServer.image.pullPolicy }}
+          {{- if .Values.documentServer.env }}
+          env:
+            {{- with .Values.documentServer.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 180
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 180
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end -}}

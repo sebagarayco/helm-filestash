@@ -1,0 +1,25 @@
+{{- if .Values.persistence.filestashState.enabled }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "filestash.fullname" . }}-state
+  labels:
+    {{- include "filestash.labels" . | nindent 4 }}
+{{- if .Values.persistence.filestashState.annotations }}
+  annotations:
+{{ toYaml .Values.persistence.filestashState.annotations | indent 4 }}
+{{- end }}
+spec:
+  accessModes:
+    - {{ .Values.persistence.filestashState.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.filestashState.storageSize | quote }}
+{{- if .Values.persistence.filestashState.storageClass }}
+{{- if (eq "-" .Values.persistence.filestashState.storageClass) }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: "{{ .Values.persistence.filestashState.storageClass }}"
+{{- end }}
+{{- end }}
+{{- end }}
