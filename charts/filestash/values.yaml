@@ -60,8 +60,9 @@ documentServer:
     port: 80
 
 service:
-  type: ClusterIP
+  type: NodePort
   port: 8334
+  nodeport: 30999
 
 ingress:
   enabled: false
