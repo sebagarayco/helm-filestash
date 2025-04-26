@@ -1,5 +1,7 @@
 # Helm Chart for Filestash
 
+⚠️  Archived and moved to [https://github.com/sebagarayco/helm-charts](https://github.com/sebagarayco/helm-charts).
+
 Based on the image built from :unicorn: https://github.com/mickael-kerjean/filestash.
 
 ## Usage
